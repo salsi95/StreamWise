@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
+import numpy as np
+
 api_key = os.getenv("API_KEY")
 
 def buscar_genero():
@@ -61,3 +63,22 @@ def obtener_datos (dicc_peliculas):
 
     return todas_pelis
 
+
+def buscar_genero (df):
+    dicc_generos = {}
+    for i in range(df.shape[0]):
+        if df.iloc[i,0] in dicc_generos:
+            dicc_generos[df.iloc[i,0]].append(df.iloc[i,3])
+        else:
+            dicc_generos[df.iloc[i,0]] = [df.iloc[i,3]]
+    return dicc_generos
+
+
+def aplicar_generos(col_index, dicc_generos):
+    if col_index in dicc_generos:
+
+        lista = dicc_generos[col_index]
+        dicc_generos.pop(col_index)
+        return lista
+    else:
+        return np.nan
