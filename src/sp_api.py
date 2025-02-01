@@ -7,7 +7,7 @@ import numpy as np
 
 api_key = os.getenv("API_KEY")
 
-def buscar_genero():
+def buscar_genero_api():
 
     url = "https://moviesdatabase.p.rapidapi.com/titles/utils/genres"
 
