@@ -47,7 +47,7 @@ def buscar_genero_api():
 
 
 def buscar_peliculas (genero, ano, pagina):
-        """
+    """
     Busca películas en la API de Movies Database según el género, año y página especificados.
 
     Parámetros:
@@ -76,7 +76,7 @@ def buscar_peliculas (genero, ano, pagina):
 
 
 def obtener_datos (dicc_peliculas):
-        """
+    """
     Procesa un diccionario de películas y extrae información relevante para crear un DataFrame.
 
     Parámetros:
@@ -106,7 +106,7 @@ def obtener_datos (dicc_peliculas):
 
 
 def buscar_genero (df):
-        """
+    """
     Agrupa los géneros de las películas en un diccionario, donde la clave es el identificador de la película
     y el valor es una lista de géneros asociados a esa película.
 
@@ -128,7 +128,7 @@ def buscar_genero (df):
 
 
 def aplicar_generos(col_index, dicc_generos):
-        """
+    """
     Aplica los géneros de una película a partir de su identificador, si existe en el diccionario de géneros.
 
     Parámetros:
