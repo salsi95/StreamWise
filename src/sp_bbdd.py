@@ -1,5 +1,6 @@
 import psycopg2
-class postgres:
+from tqdm import tqdm
+class Postgres:
     def __init__ (self, database, user, password, host, port):
 
         self.database = database
@@ -80,3 +81,136 @@ class postgres:
         cursor.close()
         self.cerrar_conexion()
         
+
+    
+class ListasInsertar:
+
+    def __init__ (self, colecc_api, colecc_pelis, colecc_actores):
+
+        self.colecc_api = colecc_api
+        self.colecc_pelis = colecc_pelis
+        self.colecc_actores = colecc_actores
+
+    def genero(self):
+        generos = set()
+        for peli in list(self.colecc_api.find()):
+            for genero in peli['genre']:
+                generos.add(genero)
+        list_generos = []
+        for i, genero in enumerate(list(generos), start=1):
+            list_generos.append((i,genero))
+
+        return list_generos
+
+    def tipos(self):
+
+        tipos = set()
+        for peli in list(self.colecc_api.find()):
+            tipos.add(peli['type'])
+        list_tipos = []
+        for i, tipo in enumerate(list(tipos), start=1):
+            list_tipos.append((i,tipo))
+
+        return list_tipos
+
+
+    def pelis(self):
+
+        lista_peliculas = []
+        for peli in tqdm(list(self.colecc_pelis.find())):
+            imdb = peli['id_IMDB']
+            titulo = self.colecc_api.find_one({'id':peli['id_IMDB']})['title']
+            year = self.colecc_api.find_one({'id':peli['id_IMDB']})['year']
+            genero = self.colecc_api.find_one({'id':peli['id_IMDB']})['genre']
+            tipo = self.colecc_api.find_one({'id':peli['id_IMDB']})['type']
+            puntuacion = peli['puntuacion']
+            duracion = peli['duracion']
+
+            tupla = (imdb,titulo, year, genero, tipo, puntuacion, duracion)
+
+            lista_peliculas.append(tupla)
+
+        return lista_peliculas
+
+    def personas(self):
+        lista_personas = []
+        for peli in tqdm(list(self.colecc_pelis.find())):
+            for director in peli['direccion']:
+                if self.colecc_actores.find_one({'nombre':director}):
+                    if  type(self.colecc_actores.find_one({'nombre':director})['roles']) is float:
+                        continue
+                    elif  type(self.colecc_actores.find_one({'nombre':director})['roles']) is not list:
+                        continue
+                    elif 'Dirección' in self.colecc_actores.find_one({'nombre':director})['roles']:
+                        continue
+                    else:
+                        self.colecc_actores.update_one({'nombre':director},{'$set': {'roles': self.colecc_actores.find_one({'nombre':director})['roles'].append('Dirección')}})
+                    
+                else:
+                    nombre = director
+                    año = np.nan
+                    conocido = list(pd.DataFrame(self.colecc_pelis.find({'direccion': director},{'id_IMDB':1, '_id':0}))['id_IMDB'])
+                    roles = ['Dirección']
+                    premios = np.nan
+                    nominaciones = np.nan
+                    tupla = (nombre,año,conocido, roles, premios, nominaciones)
+                    lista_personas.append(tupla)
+                        
+            for guionista in peli['guion']:
+                if self.colecc_actores.find_one({'nombre':guionista}):
+                    if  type(self.colecc_actores.find_one({'nombre':guionista})['roles']) is float:
+                        continue
+                    elif  type(self.colecc_actores.find_one({'nombre':guionista})['roles']) is not list:
+                        continue
+                    elif 'Guion' in self.colecc_actores.find_one({'nombre':guionista})['roles'] :
+                        continue
+                    else:
+                        self.colecc_actores.update_one({'nombre':guionista},{'$set': {'roles': self.colecc_actores.find_one({'nombre':guionista})['roles'].append('Guion')}})
+
+
+                else:
+                    nombre = guionista
+                    año = np.nan
+                    conocido = list(pd.DataFrame(self.colecc_pelis.find({'guion': guionista},{'id_IMDB':1, '_id':0}))['id_IMDB'])
+                    roles = ['Guion']
+                    premios = np.nan
+                    nominaciones = np.nan
+                    tupla = (nombre,año,conocido, roles, premios, nominaciones)
+                    lista_personas.append(tupla)
+
+        for actor in tqdm(list(self.colecc_actores.find())):
+            nombre = actor['nombre']
+            año = actor['year']
+            conocido = actor['conocido']
+            roles = actor['roles']
+            premios = actor['premios']
+            try:
+                nominaciones = actor['nominaciones']
+            except:
+                nominaciones = np.nan
+            tupla = (nombre,año,conocido, roles, premios, nominaciones)
+            lista_personas.append(tupla)
+
+        return lista_personas
+
+
+    def roles(self, df):
+        roless = set()
+        for roles in df['roles']:
+            if type(roles) is not list:
+                continue
+            for rol in roles:
+                if any(char.isdigit() for char in rol):
+                    continue
+                roless.add(rol)
+
+        list_roles = []
+        for i, rol in enumerate(list(roless), start=1):
+            list_roles.append((i,rol))
+
+        
+        return list_roles
+
+
+
+

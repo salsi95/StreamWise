@@ -219,10 +219,9 @@ def obtener_conocidos():
             continue
         elif len(actor['conocido'])<1: #Si la lista está vacía pasa al siguiente
             continue
-
         elif type(actor['conocido'][0]) is float: #Si el primer elemento de la lista es un float (nan) pasa al siguiente
             continue
-        elif len(actor['conocido'][0]) == 9: #Si el primer elemento de la lista tiene 9 caracteres pasa al siguiente
+        elif len(actor['conocido'][0]) == 10 or len(actor['conocido'][0]) == 9: #Si el primer elemento de la lista tiene 9 caracteres pasa al siguiente
             continue
 
         #Intenta una primera búsqueda y sino pasa a la siguiente
@@ -252,7 +251,7 @@ def obtener_conocidos():
             pass
         #Actualiza el documento del actor
         actores.update_one({'nombre':actor['nombre']},{'$set': {'conocido': lista_conocidos}})
-
+        
     driver.close()
 
 def obtener_info_actores():
